@@ -175,14 +175,14 @@ core id		: 5
 cpu cores	: 6
 `
 
-type spyLoader struct{}
+type spyCpuLoader struct{}
 
-func (l *spyLoader) Load() (string, error) {
+func (l *spyCpuLoader) Load() (string, error) {
 	return cpuinfo, nil
 }
 func TestGetCpuInfo(t *testing.T) {
-	var _ Loader = (*spyLoader)(nil)
-	got, _ := getCpuInfo(&spyLoader{})
+	var _ Loader = (*spyCpuLoader)(nil)
+	got, _ := getCpuInfo(&spyCpuLoader{})
 	expected := CpuInfo{
 		NumCores:  12,
 		VendorId:  "GenuineIntel",
@@ -190,6 +190,6 @@ func TestGetCpuInfo(t *testing.T) {
 		CacheSize: "12288 KB",
 		CpuMHZ:    1233.7074,
 	}
-	assert.Equal(t, expected, got, "The two words should be the same.")
+	assert.Equal(t, expected, got)
 
 }

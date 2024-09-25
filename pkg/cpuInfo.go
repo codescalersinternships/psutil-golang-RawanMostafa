@@ -10,10 +10,10 @@ type Loader interface {
 	Load() (string, error)
 }
 
-type RealLoader struct{}
+type RealCpuLoader struct{}
 
-func (l *RealLoader) Load() (string, error) {
-	return loadCpuFile()
+func (l *RealCpuLoader) Load() (string, error) {
+	return loadFile("/proc/cpuinfo")
 }
 
 type CpuInfo struct {
@@ -24,17 +24,17 @@ type CpuInfo struct {
 	CpuMHZ    float32
 }
 
-func loadCpuFile() (cpuFile string, err error) {
-	file, err := os.ReadFile("/proc/cpuinfo")
-	cpuFile = string(file)
+func loadFile(filepath string) (fileData string, err error) {
+	file, err := os.ReadFile(filepath)
+	fileData = string(file)
 
 	return
 }
 
-func setCpuInfo(cpuFile string) (cpuInfo CpuInfo, err error) {
+func setCpuInfo(cpuData string) (cpuInfo CpuInfo, err error) {
 	var processorsNum int
 	var totalFreq float32
-	lines := strings.SplitN(cpuFile, "\n", -1)
+	lines := strings.SplitN(cpuData, "\n", -1)
 	for _, line := range lines {
 		if strings.HasPrefix(line, "processor") {
 			processorsNum++
@@ -66,16 +66,16 @@ func setCpuInfo(cpuFile string) (cpuInfo CpuInfo, err error) {
 }
 
 func GetCpuInfo() (cpuInfo CpuInfo, err error) {
-	var _ Loader = (*RealLoader)(nil)
-	return getCpuInfo(&RealLoader{})
+	var _ Loader = (*RealCpuLoader)(nil)
+	return getCpuInfo(&RealCpuLoader{})
 }
 
 func getCpuInfo(loader Loader) (cpuInfo CpuInfo, err error) {
 
-	cpuFile, err := loader.Load()
+	cpuData, err := loader.Load()
 	if err != nil {
 		return
 	}
-	cpuInfo, err = setCpuInfo(cpuFile)
+	cpuInfo, err = setCpuInfo(cpuData)
 	return
 }

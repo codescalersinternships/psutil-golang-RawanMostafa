@@ -7,7 +7,10 @@ import (
 )
 
 func main() {
-	cpuinfo, _ := psutils.GetCpuInfo()
-	log.Printf("%v",cpuinfo)
+	cpuInfo, _ := psutils.GetCpuInfo()
+	log.Printf("%v",cpuInfo)
+	memInfo, err := psutils.GetMemInfo()
+	log.Printf("%v",memInfo)
+	log.Fatalf("err %v",err)
 
 }

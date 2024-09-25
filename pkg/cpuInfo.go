@@ -1,14 +1,10 @@
 package psutils
 
 import (
-	"errors"
-	"log"
 	"os"
 	"strconv"
 	"strings"
 )
-
-var errKeyNotExist = errors.New("key doesn't exist")
 
 type CpuInfo struct {
 	NumCores  int
@@ -50,7 +46,6 @@ func GetCpuInfo() (cpuInfo CpuInfo, err error) {
 			parts := strings.Split(line, ":")
 			freq, err := strconv.ParseFloat(strings.TrimSpace(parts[1]), 32)
 			if err != nil {
-				log.Print("ERRRRORRRRR")
 				return cpuInfo, err
 			}
 			totalFreq += float32(freq)

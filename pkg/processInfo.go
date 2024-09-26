@@ -18,7 +18,7 @@ func (l *RealProcLoader) Load(filePath string) (string, error) {
 	return loadFile(filePath)
 }
 
-func setProcInfo(data string) (proc Process, err error) {
+func setProcInfo(data string) (proc Process, running bool, err error) {
 	lines := strings.SplitN(data, "\n", -1)
 
 	for _, line := range lines {
@@ -32,6 +32,13 @@ func setProcInfo(data string) (proc Process, err error) {
 			parts := strings.Split(line, ":")
 			value := strings.TrimSpace(parts[1])
 			proc.PID, err = strconv.Atoi(value)
+		} else if strings.HasPrefix(line, "State") {
+
+			parts := strings.Split(line, ":")
+			value := strings.TrimSpace(parts[1])
+			if strings.Contains(value, "R") {
+				running = true
+			}
 		}
 	}
 	return
@@ -69,8 +76,11 @@ func getProcessList(loader Loader) (procs []Process, err error) {
 			return
 		}
 		var process Process
-		process, err = setProcInfo(data)
-		procs = append(procs, process)
+		var running bool
+		process, running, err = setProcInfo(data)
+		if running {
+			procs = append(procs, process)
+		}
 	}
 	return
 }

@@ -13,8 +13,8 @@ type MemInfo struct {
 
 type RealMemLoader struct{}
 
-func (l *RealMemLoader) Load() (string, error) {
-	return loadFile("/proc/meminfo")
+func (l *RealMemLoader) Load(filePath string) (string, error) {
+	return loadFile(filePath)
 }
 
 func extractValue(line string) (valueNoKB string) {
@@ -56,7 +56,7 @@ func GetMemInfo() (memInfo MemInfo, err error) {
 
 func getMemInfo(loader Loader) (memInfo MemInfo, err error) {
 
-	memData, err := loader.Load()
+	memData, err := loader.Load("/proc/meminfo")
 	if err != nil {
 		return
 	}

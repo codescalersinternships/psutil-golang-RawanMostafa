@@ -18,7 +18,7 @@ Inactive:        6296272 kB
 
 type spyMemLoader struct{}
 
-func (l *spyMemLoader) Load() (string, error) {
+func (l *spyMemLoader) Load(string) (string, error) {
 	return memInfo, nil
 }
 func TestGetMemInfo(t *testing.T) {

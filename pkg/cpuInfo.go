@@ -7,13 +7,13 @@ import (
 )
 
 type Loader interface {
-	Load() (string, error)
+	Load(filePath string) (string, error)
 }
 
 type RealCpuLoader struct{}
 
-func (l *RealCpuLoader) Load() (string, error) {
-	return loadFile("/proc/cpuinfo")
+func (l *RealCpuLoader) Load(filePath string) (string, error) {
+	return loadFile(filePath)
 }
 
 type CpuInfo struct {
@@ -72,7 +72,7 @@ func GetCpuInfo() (cpuInfo CpuInfo, err error) {
 
 func getCpuInfo(loader Loader) (cpuInfo CpuInfo, err error) {
 
-	cpuData, err := loader.Load()
+	cpuData, err := loader.Load("/proc/cpuinfo")
 	if err != nil {
 		return
 	}

@@ -11,6 +11,9 @@ func main() {
 	log.Printf("%v",cpuInfo)
 	memInfo, err := psutils.GetMemInfo()
 	log.Printf("%v",memInfo)
-	log.Fatalf("err %v",err)
+	log.Printf("err %v",err)
+	procs, err := psutils.GetProcessList()
+	log.Printf("%v\n",procs)
+	log.Printf("err %v",err)
 
 }

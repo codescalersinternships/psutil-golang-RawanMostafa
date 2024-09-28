@@ -36,3 +36,18 @@ func TestGetProcList(t *testing.T) {
 	assert.Equal(t, expected, got[0])
 
 }
+
+func TestGetProcDetails(t *testing.T) {
+	var _ Loader = (*spyProcLoader)(nil)
+	got, err := getProcessDetails(5, &spyProcLoader{})
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+	expected := ProcessDetails{
+		PPID:  2,
+		State: "R (Running)",
+		Tgid:  4085954,
+	}
+	assert.Equal(t, expected, got)
+
+}

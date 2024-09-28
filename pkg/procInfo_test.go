@@ -20,7 +20,7 @@ FDSize:	64`
 
 type spyProcLoader struct{}
 
-func (l *spyProcLoader) Load(string) (string, error) {
+func (l *spyProcLoader) load(string) (string, error) {
 	return procStatus, nil
 }
 func TestGetProcList(t *testing.T) {

@@ -177,7 +177,7 @@ cpu cores	: 6
 
 type spyCpuLoader struct{}
 
-func (l *spyCpuLoader) Load(string) (string, error) {
+func (l *spyCpuLoader) load(string) (string, error) {
 	return cpuinfo, nil
 }
 func TestGetCpuInfo(t *testing.T) {

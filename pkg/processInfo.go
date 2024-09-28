@@ -1,5 +1,7 @@
 package psutils
 
+import "fmt"
+
 import (
 	"os"
 	"path/filepath"
@@ -12,13 +14,19 @@ type Process struct {
 	ProcessName string
 }
 
+type ProcessDetails struct {
+	State string
+	PPID  int
+	Tgid  int
+}
+
 type RealProcLoader struct{}
 
 func (l *RealProcLoader) Load(filePath string) (string, error) {
 	return loadFile(filePath)
 }
 
-func setProcInfo(data string) (proc Process, running bool, err error) {
+func setProcInfo(data string) (proc Process, procDetails ProcessDetails, err error) {
 	lines := strings.SplitN(data, "\n", -1)
 
 	for _, line := range lines {
@@ -36,9 +44,17 @@ func setProcInfo(data string) (proc Process, running bool, err error) {
 
 			parts := strings.Split(line, ":")
 			value := strings.TrimSpace(parts[1])
-			if strings.Contains(value, "R") {
-				running = true
-			}
+			procDetails.State = value
+		} else if strings.HasPrefix(line, "PPid") {
+
+			parts := strings.Split(line, ":")
+			value := strings.TrimSpace(parts[1])
+			procDetails.PPID, err = strconv.Atoi(value)
+		} else if strings.HasPrefix(line, "Tgid") {
+
+			parts := strings.Split(line, ":")
+			value := strings.TrimSpace(parts[1])
+			procDetails.Tgid, err = strconv.Atoi(value)
 		}
 	}
 	return
@@ -76,11 +92,29 @@ func getProcessList(loader Loader) (procs []Process, err error) {
 			return
 		}
 		var process Process
-		var running bool
-		process, running, err = setProcInfo(data)
-		if running {
+		var procDetails ProcessDetails
+		process, procDetails, err = setProcInfo(data)
+		if strings.Contains(procDetails.State, "R") {
 			procs = append(procs, process)
 		}
 	}
+	return
+}
+
+func GetProcessDetails(PID int) (ProcessDetails ProcessDetails, err error) {
+	var _ Loader = (*RealProcLoader)(nil)
+	return getProcessDetails(PID, &RealProcLoader{})
+}
+
+func getProcessDetails(PID int, loader Loader) (ProcessDetails ProcessDetails, err error) {
+
+	statusFile := filepath.Join("/proc", fmt.Sprint(PID), "status")
+	var data string
+	data, err = loader.Load(statusFile)
+	if err != nil {
+		return
+	}
+	_, ProcessDetails, err = setProcInfo(data)
+
 	return
 }

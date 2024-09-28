@@ -1,3 +1,4 @@
+// psutils package implements a human-friendly lib for querying processes, memory info and cpu info
 package psutils
 
 import (
@@ -7,15 +8,16 @@ import (
 )
 
 type Loader interface {
-	Load(filePath string) (string, error)
+	load(filePath string) (string, error)
 }
 
-type RealCpuLoader struct{}
+type realCpuLoader struct{}
 
-func (l *RealCpuLoader) Load(filePath string) (string, error) {
+func (l *realCpuLoader) load(filePath string) (string, error) {
 	return loadFile(filePath)
 }
 
+// CpuInfo holds some details about the CPU like number of cores, vendorID, model name, cache size, average CPU frequency
 type CpuInfo struct {
 	NumCores  int
 	VendorId  string
@@ -65,14 +67,15 @@ func setCpuInfo(cpuData string) (cpuInfo CpuInfo, err error) {
 	return
 }
 
+// GetCpuInfo returns a CpuInfo type about the CPU in this moment
 func GetCpuInfo() (cpuInfo CpuInfo, err error) {
-	var _ Loader = (*RealCpuLoader)(nil)
-	return getCpuInfo(&RealCpuLoader{})
+	var _ Loader = (*realCpuLoader)(nil)
+	return getCpuInfo(&realCpuLoader{})
 }
 
 func getCpuInfo(loader Loader) (cpuInfo CpuInfo, err error) {
 
-	cpuData, err := loader.Load("/proc/cpuinfo")
+	cpuData, err := loader.load("/proc/cpuinfo")
 	if err != nil {
 		return
 	}

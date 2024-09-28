@@ -1,28 +1,30 @@
+// psutils package implements a human-friendly lib for querying processes, memory info and cpu info
 package psutils
 
-import "fmt"
-
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 )
 
+// Process holds the basic information about a process, like its Pid and name
 type Process struct {
 	PID         int
 	ProcessName string
 }
 
+// ProcessDetails holds more detailed information about a process, like its State, PPid, Tgid
 type ProcessDetails struct {
 	State string
 	PPID  int
 	Tgid  int
 }
 
-type RealProcLoader struct{}
+type realProcLoader struct{}
 
-func (l *RealProcLoader) Load(filePath string) (string, error) {
+func (l *realProcLoader) load(filePath string) (string, error) {
 	return loadFile(filePath)
 }
 
@@ -60,9 +62,10 @@ func setProcInfo(data string) (proc Process, procDetails ProcessDetails, err err
 	return
 }
 
+// GetProcessList returns a list of all currently running processes and an error if exists
 func GetProcessList() (procs []Process, err error) {
-	var _ Loader = (*RealProcLoader)(nil)
-	return getProcessList(&RealProcLoader{})
+	var _ Loader = (*realProcLoader)(nil)
+	return getProcessList(&realProcLoader{})
 }
 
 func getProcessList(loader Loader) (procs []Process, err error) {
@@ -87,7 +90,7 @@ func getProcessList(loader Loader) (procs []Process, err error) {
 
 		statusFile := filepath.Join("/proc", entry, "status")
 		var data string
-		data, err = loader.Load(statusFile)
+		data, err = loader.load(statusFile)
 		if err != nil {
 			return
 		}
@@ -101,16 +104,18 @@ func getProcessList(loader Loader) (procs []Process, err error) {
 	return
 }
 
+// GetProcessDetails takes a PID as an argument
+// and returns its details as ProcessDetails type, and an error if exists
 func GetProcessDetails(PID int) (ProcessDetails ProcessDetails, err error) {
-	var _ Loader = (*RealProcLoader)(nil)
-	return getProcessDetails(PID, &RealProcLoader{})
+	var _ Loader = (*realProcLoader)(nil)
+	return getProcessDetails(PID, &realProcLoader{})
 }
 
 func getProcessDetails(PID int, loader Loader) (ProcessDetails ProcessDetails, err error) {
 
 	statusFile := filepath.Join("/proc", fmt.Sprint(PID), "status")
 	var data string
-	data, err = loader.Load(statusFile)
+	data, err = loader.load(statusFile)
 	if err != nil {
 		return
 	}

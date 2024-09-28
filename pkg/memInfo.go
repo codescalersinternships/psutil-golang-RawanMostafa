@@ -1,3 +1,4 @@
+// psutils package implements a human-friendly lib for querying processes, memory info and cpu info
 package psutils
 
 import (
@@ -5,15 +6,16 @@ import (
 	"strings"
 )
 
+// MemInfo holds some info about the memory like total,used and availabe memory in KiloBytes
 type MemInfo struct {
 	TotalMemoryKB     float64
 	UsedMemoryKB      float64
 	AvailableMemoryKB float64
 }
 
-type RealMemLoader struct{}
+type realMemLoader struct{}
 
-func (l *RealMemLoader) Load(filePath string) (string, error) {
+func (l *realMemLoader) load(filePath string) (string, error) {
 	return loadFile(filePath)
 }
 
@@ -49,14 +51,15 @@ func setMemInfo(memData string) (memInfo MemInfo, err error) {
 	return
 }
 
+// GetMemInfo returns a MemInfo type of the memory in this moment
 func GetMemInfo() (memInfo MemInfo, err error) {
-	var _ Loader = (*RealMemLoader)(nil)
-	return getMemInfo(&RealMemLoader{})
+	var _ Loader = (*realMemLoader)(nil)
+	return getMemInfo(&realMemLoader{})
 }
 
 func getMemInfo(loader Loader) (memInfo MemInfo, err error) {
 
-	memData, err := loader.Load("/proc/meminfo")
+	memData, err := loader.load("/proc/meminfo")
 	if err != nil {
 		return
 	}
